@@ -1179,10 +1179,14 @@ class RelationController extends ControllerBehavior
 
             if (is_array($checkedIds)) {
                 $foreignKeyName = $relatedModel->getKeyName();
-
-                $models = $relatedModel->whereIn($foreignKeyName, $checkedIds)->get();
-                foreach ($models as $model) {
-                    $this->relationObject->remove($model, $sessionKey);
+                if ($this->relationType == 'belongsToMany' || $this->relationType == 'morphToMany' || $this->relationType == 'morphedByMany') {
+                    $this->relationObject->detach($checkedIds);
+                }
+                elseif ($this->relationType == 'hasMany' || $this->relationType == 'morphMany') {
+                    $models = $relatedModel->whereIn($foreignKeyName, $checkedIds)->get();
+                    foreach ($models as $model) {
+                        $this->relationObject->remove($model, $sessionKey);
+                    }
                 }
             }
         }
